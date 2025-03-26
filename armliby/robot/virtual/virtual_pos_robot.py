@@ -13,10 +13,11 @@ class VirtualPosRobot(JointRobot):
             joint_limits: Optional[JointLimits] = None,
             ):
         """
-        Initialize the virtual robot for visualization.
+        Initialize the virtual robot.
 
         Args:
             start_joints: The initial joint positions of the robot.
+            joint_limits: Optional joint limits for the robot.
         """
         self._joint_count = len(start_joints)
         self._current_jpos = start_joints
@@ -28,14 +29,12 @@ class VirtualPosRobot(JointRobot):
         return self._joint_count
 
     def connect(self) -> None:
-        """Initialize the Open3D visualizer and load geometries."""
         if self._connected:
             print("Robot is already connected.")
             return
         self._connected = True
 
     def disconnect(self) -> None:
-        """Close the Open3D visualizer."""
         if not self._connected:
             print("Robot is already disconnected.")
             return

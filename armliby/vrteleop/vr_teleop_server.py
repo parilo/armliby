@@ -15,6 +15,18 @@ class VRTeleopServer:
             ssl_cert: str,
             ssl_key: str
             ):
+        """
+        Initialize the VR teleop server.
+
+        Args:
+            host: The host address of the server.
+            app_port: The port number of the Flask app.
+            wss_port: The port number of the websocket server.
+            urdf_path: The path to the URDF file.
+            ssl_cert: The path to the SSL certificate file.
+                Create using openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+            ssl_key: The path to the SSL key file.
+        """
         self._host = host
         self._wss_port = wss_port
         self._app_port = app_port

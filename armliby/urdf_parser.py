@@ -12,10 +12,12 @@ class URDFParser:
             skip_joints: Optional[List[int]] = None,
             ) -> None:
         """
-        Initialize the URDFParser by loading the URDF file.
+        Parse the URDF file.
 
         Args:
             urdf_path (str): Path to the URDF file.
+            skip_links (Optional[List[int]], optional): List of link indices to skip. Defaults to None.
+            skip_joints (Optional[List[int]], optional): List of joint indices to skip. Defaults to None.
         """
         self._urdf_path: str = urdf_path
         self._urdf: URDF = URDF.load(urdf_path)

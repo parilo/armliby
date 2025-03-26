@@ -61,8 +61,6 @@ class Button:
 
 @dataclass
 class Controller:
-    # position: Position
-    # rotation: Rotation
     pose: Pose
     buttons: List[Button]
     axes: List[float]
@@ -74,7 +72,7 @@ class ControllerData:
     rightController: Controller
 
 
-class IKServer:
+class VRWebsocketServer:
     def __init__(
             self,
             host: str,
@@ -82,6 +80,16 @@ class IKServer:
             cert_path: str,
             key_path: str,
             ):
+        """
+        Initialize the VR websocket server.
+
+        Args:
+            host: The host address of the server.
+            port: The port number of the server.
+            cert_path: The path to the SSL certificate file. 
+                Create using openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+            key_path: The path to the SSL key file.
+        """
         self._host = host
         self._port = port
         self._cert_path = cert_path
@@ -94,7 +102,6 @@ class IKServer:
         try:
             async for message in websocket:
 
-                # print("Received data:", message)
                 parsed_data = json.loads(message)
 
                 # Convert dictionary to dataclass

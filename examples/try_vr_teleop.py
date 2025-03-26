@@ -8,7 +8,7 @@ from armliby.ik import Kinematics
 from armliby.robot.joint_limits import JointLimits
 from armliby.robot.virtual.open3d_robot_vis import Open3dRobotVis
 from armliby.robot.virtual.virtual_pos_robot import VirtualPosRobot
-from armliby.vrteleop.ik_ws_server import ControllerData, IKServer
+from armliby.vrteleop.ik_ws_server import ControllerData, VRWebsocketServer
 from armliby.vrteleop.vr_teleop_server import VRTeleopServer
 
 
@@ -34,7 +34,9 @@ def main():
 
     np.set_printoptions(suppress=True, precision=4)
 
-    ws_server = IKServer(
+    # Initialize and start the VRWebsocketServer
+    # This server is used to send VR controllers data to this script
+    ws_server = VRWebsocketServer(
         host=HOST,
         port=WSS_PORT,
         cert_path=SSL_CERT,
@@ -43,6 +45,7 @@ def main():
     ws_server.start()
 
     # Initialize and start the VRTeleop server
+    # This server is used to host web page opened by VR headset
     server = VRTeleopServer(
         host=HOST,
         wss_port=WSS_PORT,
@@ -64,6 +67,7 @@ def main():
         mod_matrix=mod_matrix,
     )
 
+    # visualize the robot
     vis_robot = Open3dRobotVis(
         urdf_path=URDF_PATH,
         kinematics=Kinematics(
@@ -79,6 +83,7 @@ def main():
         skip_joints=[0],
     )
 
+    # create a virtual robot that will be controlled
     robot = VirtualPosRobot(
         start_joints=START_POS,
         joint_limits=joint_limits,
@@ -98,11 +103,14 @@ def main():
                 len(controller_data.rightController.buttons) > 4 and
                 controller_data.rightController.buttons[5].pressed  # B pressed
             ):
+                # print current controller pose
                 print(controller_data.rightController.pose)
 
+                # calculate the difference between current and previous controller pose
                 diff_pose = prev_controller_data.rightController.pose.diff_to(controller_data.rightController.pose)
                 rotvec = diff_pose.rotvec()  # in radians
 
+                # calculate the cartesian delta to move the robot
                 dx = np.array([
                     diff_pose.x,
                     diff_pose.y,
@@ -113,29 +121,34 @@ def main():
                 ])
 
                 cur_joints = robot.read().pos
-                # djoints = linear_control.position_relative_control(cur_joints, dx)
 
-                # Warning: when use with real robot additional safety is needed
-                # beacuse inverse kinematics is unstable near singularities
-                # it can provide big djoints values,so robot
-                # can move fast and damage itself or environment
+                # calculate the joint deltas to achieve the cartesian delta
                 djoints = kinematics.dj(
                     js=cur_joints[:5],
                     dx=dx,
                 )
 
+                # Warning: when use with real robot additional safety is needed
+                # beacuse inverse kinematics is unstable near singularities
+                # it can provide big djoints values,so robot
+                # can move fast and damage itself or environment
                 # put additional safety here
                 safety_djoints = np.clip(djoints, -30, 30)
 
                 print(f'--- dj {djoints}')
+
+                # update the joint positions
                 cur_joints[:5] += safety_djoints
                 cur_joints[ 5] = 45 * (1 - controller_data.rightController.buttons[0].value)
                 robot.position_abs_control(cur_joints)
+
+                # visualize the robot
                 vis_robot.visualize(robot.read().pos)
 
         prev_controller_data = controller_data
         time.sleep(1. / CONTROL_FREQ)
 
+        # send updated robot links poses to the VR headset
         transforms = kinematics.fk(robot.read().pos[:5])
         return transforms
 

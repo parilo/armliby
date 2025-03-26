@@ -16,11 +16,14 @@ class Open3dRobotVis:
             skip_joints: Optional[List[int]] = None,
             ):
         """
-        Initialize the virtual robot for visualization.
+        Initialize the Open3D robot visualization.
 
         Args:
-            urdf_path (str): Path to the URDF file.
-            joint_count (int): Number of joints in the robot.
+            urdf_path: Path to the URDF file describing the robot.
+            kinematics: Kinematics object for forward kinematics calculations.
+            end_link_name: Name of the end effector link to attach the coordinate frame.
+            skip_links: Optional list of link indices to skip during visualization.
+            skip_joints: Optional list of joint indices to skip during visualization.
         """
         self.urdf_path = urdf_path
         self.parser = URDFParser(

@@ -1,8 +1,8 @@
 from typing import Dict, Optional
-from scipy.spatial.transform import Rotation as R
 
 import numpy as np
 import pytorch_kinematics as pk
+from scipy.spatial.transform import Rotation as R
 
 
 class Kinematics:
@@ -13,6 +13,19 @@ class Kinematics:
             mod_matrix: Optional[np.ndarray] = None,
             deg: bool = True,
             ) -> None:
+        """
+        Initialize forward and inverse kinematics solvers.
+
+        Args:
+            urdf_path: The path to the URDF file.
+            end_link_name: The name of the end effector link.
+            mod_matrix: The modification matrix for the Jacobian. 
+                Useful if robot dof is less than 6.
+                Jacobian and cartesian delta is transformed by mod_matrix.
+                dx = mod_matrix @ dx
+                jac = mod_matrix @ jac
+            deg: If True, the joint angles are in degrees. Default is True.
+        """
         # Load robot description from URDF and specify end effector link
         with open(urdf_path, "rb") as f:
             urdf_content = f.read()
@@ -31,7 +44,15 @@ class Kinematics:
         return len(self._chain.get_joints())
 
     def fk(self, js: np.ndarray) -> Dict[str, np.ndarray]:
-        # Perform forward kinematics and get transform objects
+        """
+        Perform forward kinematics and get transforms for all links.
+
+        Args:
+            js: The joint angles.
+
+        Returns:
+            A dictionary of transforms.
+        """
         if self._deg:
             js = np.deg2rad(js)
 
@@ -44,6 +65,16 @@ class Kinematics:
             js: np.ndarray,
             dx: np.ndarray,
             ) -> np.ndarray:
+        """
+        Compute the joint deltas to achieve a desired end effector cartesian delta.
+
+        Args:
+            js: The current joint angles.
+            dx: The desired end effector cartesian delta.
+
+        Returns:
+            The joint deltas.
+        """
 
         if self._deg:
             js = np.deg2rad(js)
@@ -68,6 +99,16 @@ class Kinematics:
             js1: np.ndarray,
             js2: np.ndarray,
             ) -> np.ndarray:
+        """
+        Compute the cartesian delta between two joint configurations.
+
+        Args:
+            js1: The first joint configuration.
+            js2: The second joint configuration.
+
+        Returns:
+            The cartesian delta.
+        """
         
         x1 = self.fk(js1)[self.end_link_name]
         x2 = self.fk(js2)[self.end_link_name]
