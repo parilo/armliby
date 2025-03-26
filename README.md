@@ -30,10 +30,10 @@ WARNING: This is a development server. Do not use it in a production deployment.
 Press CTRL+C to quit
 ```
 
-1 Navigate to https://your-ip:5000 in VR headset (tested on Oculus Quest 2)
-2 Enter VR mode
-3 While you hold B on right controller robot in VR follows your movement
-4 So does the robot in Open3d window
+1. Navigate to https://your-ip:5000 in VR headset (tested on Oculus Quest 2)
+2. Enter VR mode and see robot visualization
+3. While you hold B on right controller robot in VR follows your movement
+4. So does the robot in Open3d window
 
 For test purposes SO-ARM100 is used
 https://github.com/TheRobotStudio/SO-ARM100
