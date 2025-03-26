@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VR Teleop</title>
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script>
+      const WSS_HOST = '{{ wss_host }}';
+      const WSS_PORT = '{{ wss_port }}';
+  </script>
+  <script type="module" src="/main.js"></script>
+</head>
+<body>
+  <a-scene rotation="-90 0 0">
+    <a-sky color="#ECECEC"></a-sky>
+    <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
+    <a-light type="directional" position="1 1 0.5" intensity="1"></a-light>
+
+    <!-- Coordinate Frame at Origin -->
+    <a-entity coordinate-frame position="0 0 0"></a-entity>
+    <a-entity id="rightControllerFrame" coordinate-frame position="0 0 0"></a-entity>
+
+    <!-- Controllers with coordinate frames -->
+    <a-entity id="poseSender" pose-sender></a-entity>
+
+    <!-- Floor background -->
+    <!-- Grid lines (horizontal) -->
+    <a-entity line="start: -5 -1 0; end: 5 -1 0; color: #000; opacity: 0.5;" position="0 0 0"></a-entity>
+    <a-entity line="start: -5 0 0; end: 5 0 0; color: #000; opacity: 0.5;" position="0 0 0"></a-entity>
+    <a-entity line="start: -5 1 0; end: 5 1 0; color: #000; opacity: 0.5;" position="0 0 0"></a-entity>
+    <!-- Add more lines as needed -->
+
+    <!-- Grid lines (vertical) -->
+    <a-entity line="start: -1 -5 0; end: -1 5 0; color: #000; opacity: 0.5;" position="0 0 0"></a-entity>
+    <a-entity line="start: 0 -5 0; end: 0 5 0; color: #000; opacity: 0.5;" position="0 0 0"></a-entity>
+    <a-entity line="start: 1 -5 0; end: 1 5 0; color: #000; opacity: 0.5;" position="0 0 0"></a-entity>
+    <!-- Camera setup -->
+    <a-entity id="rig" position="0 0 0" rotation="0 90 90">
+        <a-entity id="camera" camera look-controls></a-entity>
+        <a-entity id="leftController" oculus-touch-controls="hand: left" raycaster="showLine: true; lineColor: red"></a-entity>
+        <a-entity id="rightController" oculus-touch-controls="hand: right" raycaster="showLine: true; lineColor: blue"></a-entity>
+    </a-entity>
+  </a-scene>
+</body>
+</html>
