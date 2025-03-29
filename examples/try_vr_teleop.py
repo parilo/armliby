@@ -26,8 +26,7 @@ CONTROL_FREQ = 25
 SSL_CERT = os.path.join(SCRIPT_FOLDER, 'cert.pem')
 SSL_KEY = os.path.join(SCRIPT_FOLDER, 'key.pem')
 
-# RELAX_POS = np.array([0., 195, 182, 72.6855, 0])
-START_POS = np.array([0., 143, 129, 72.6855, 0, 0])
+START_POS = np.deg2rad(np.array([0., 143, 129, 72.6855, 0, 0]))
 
 
 def main():
@@ -104,7 +103,7 @@ def main():
                 controller_data.rightController.buttons[5].pressed  # B pressed
             ):
                 # print current controller pose
-                print(controller_data.rightController.pose)
+                # print(controller_data.rightController.pose)
 
                 # calculate the difference between current and previous controller pose
                 diff_pose = prev_controller_data.rightController.pose.diff_to(controller_data.rightController.pose)
@@ -133,13 +132,13 @@ def main():
                 # it can provide big djoints values,so robot
                 # can move fast and damage itself or environment
                 # put additional safety here
-                safety_djoints = np.clip(djoints, -30, 30)
+                safety_djoints = np.clip(djoints, -1, 1)
 
                 print(f'--- dj {djoints}')
 
                 # update the joint positions
                 cur_joints[:5] += safety_djoints
-                cur_joints[ 5] = 45 * (1 - controller_data.rightController.buttons[0].value)
+                cur_joints[ 5] = np.pi * 0.25 * (1 - controller_data.rightController.buttons[0].value)
                 robot.position_abs_control(cur_joints)
 
                 # visualize the robot

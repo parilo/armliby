@@ -11,7 +11,6 @@ class Kinematics:
             urdf_path: str,
             end_link_name: str,
             mod_matrix: Optional[np.ndarray] = None,
-            deg: bool = True,
             ) -> None:
         """
         Initialize forward and inverse kinematics solvers.
@@ -24,14 +23,12 @@ class Kinematics:
                 Jacobian and cartesian delta is transformed by mod_matrix.
                 dx = mod_matrix @ dx
                 jac = mod_matrix @ jac
-            deg: If True, the joint angles are in degrees. Default is True.
         """
         # Load robot description from URDF and specify end effector link
         with open(urdf_path, "rb") as f:
             urdf_content = f.read()
 
         self._mod_matrix = mod_matrix
-        self._deg = deg
 
         self.end_link_name = end_link_name
         self._chain = pk.build_serial_chain_from_urdf(
@@ -53,9 +50,6 @@ class Kinematics:
         Returns:
             A dictionary of transforms.
         """
-        if self._deg:
-            js = np.deg2rad(js)
-
         ret = self._chain.forward_kinematics(js, end_only=False)
         ret = {key: val.get_matrix().cpu().detach().numpy()[0] for key, val in ret.items()}
         return ret
@@ -69,18 +63,12 @@ class Kinematics:
         Compute the joint deltas to achieve a desired end effector cartesian delta.
 
         Args:
-            js: The current joint angles.
+            js: The current joint angles. In radians.
             dx: The desired end effector cartesian delta.
 
         Returns:
             The joint deltas.
         """
-
-        if self._deg:
-            js = np.deg2rad(js)
-            dx = dx.copy()
-            dx[3:] = np.deg2rad(dx[3:])
-
         jac = self._chain.jacobian(js).detach().numpy()[0]
         if self._mod_matrix is not None:
             jac = self._mod_matrix @ jac
@@ -88,10 +76,6 @@ class Kinematics:
 
         jac_inv = np.linalg.pinv(jac)
         dj = jac_inv @ dx
-
-        if self._deg:
-            dj = np.rad2deg(dj)
-
         return dj
 
     def dx(

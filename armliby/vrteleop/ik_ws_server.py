@@ -50,7 +50,7 @@ class Pose:
         return Pose(array)
     
     def rotvec(self) -> Vec:
-        return Vec(self.matrix4[:3, :3].T @ R.from_matrix(self.matrix4[:3, :3]).as_rotvec(degrees=True))
+        return Vec(self.matrix4[:3, :3].T @ R.from_matrix(self.matrix4[:3, :3]).as_rotvec(degrees=False))
 
 
 @dataclass
